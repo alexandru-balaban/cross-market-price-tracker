@@ -1,0 +1,24 @@
+# ============================================================
+#  CONTROLERE vandute separat  (acelasi format ca modele.txt)
+#    Nume folosit la cautare = variante din titlu, -cuvant exclus
+#  Doar controlere pentru PS5 si Xbox Series X/S.
+#  Aici NU se aplica filtrul "für/pentru" (un "Controller für PS5"
+#  e chiar produsul cautat), dar se arunca statiile de incarcare,
+#  grip-urile, capacele de stick etc. (vezi CATEGORII in compara.py).
+#  Un "#" in fata randului dezactiveaza modelul.
+# ============================================================
+
+# ---------- PS5 ----------
+PS5 DualSense Edge = dualsense edge
+PS5 DualSense = dualsense, ps5 controller, controller ps5, джойстик ps5, геймпад ps5, joystick ps5, gamepad ps5, -edge
+
+# ---------- Xbox Series X/S ----------
+Xbox Elite Series 2 = elite series 2, elite controller series 2, elite 2, elite v2, -xbox one, -xbox 360
+Xbox Controller = xbox series controller, xbox series x controller, xbox series s controller, xbox series x/s controller, series x|s controller, series x|s wireless controller, xbox wireless controller, xbox controller, -elite, -xbox one, -xbox 360
+
+# ---------- dezactivate (alte console) ----------
+# PS4 DualShock 4 = dualshock 4, dualshock4, ds4, ps4 controller, controller ps4, джойстик ps4, геймпад ps4, joystick ps4, gamepad ps4
+# Switch Pro Controller = switch pro controller, pro controller, -ps5, -ps4, -xbox
+# Joy-Con = joy-con, joycon, joy con, -joy-con 2, -joycon 2
+# Razer Wolverine = wolverine
+# 8BitDo Ultimate = 8bitdo ultimate

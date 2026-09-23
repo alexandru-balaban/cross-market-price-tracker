@@ -1,0 +1,27 @@
+# ============================================================
+#  WATCHLIST - lucruri pe care vrei sa le cumperi TU
+#  Kleinanzeigen, toate categoriile, Munchen + 30 km.
+#
+#    Nume cautat = variante din titlu, -cuvant exclus ; max PRET ; marime 44
+#
+#  - "max" = pretul maxim (EUR); primesti doar anunturile la sau sub el.
+#  - "marime" (optional) = arunca anunturile cu ALTA marime in titlu
+#    ("Gr. 46", "EU 45"); cele fara marime in titlu raman.
+#  - Din Telegram:  /adauga Garmin Forerunner 265 ; max 250
+#                   /sterge Garmin Forerunner 265
+#  - "#" in fata randului = dezactivat.
+# ============================================================
+
+# ---------- Pantof de alergare: daily trainer, buget 200 € ----------
+# Adauga "; marime XX" cu marimea ta si coboara "max" la cat merita la mana a doua.
+ASICS Novablast = novablast ; max 200
+Nike Pegasus = pegasus, -trail, -fahrrad, -bike, -rad ; max 40 ; marime 43
+Brooks Ghost = brooks ghost, ghost 15, ghost 16, ghost 17 ; max 40 ; marime 43
+New Balance 1080 = 1080, fresh foam 1080, -gtx, -rtx ; max 40 ; marime 43
+
+# ---------- Exemple (scoate "#" ca sa le activezi) ----------
+# Garmin Forerunner 265 = forerunner 265 ; max 250
+# Garmin Forerunner 965 = forerunner 965 ; max 380
+
+# ---------- Casti ----------
+AirPods Max = airpods max, air pods max, -ohrpolster, -polster, -earpads, -ear pads, -kopfband, -replica, -kopie, -fake, -clone, -ständer, -halterung ; max 250

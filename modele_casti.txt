@@ -1,0 +1,52 @@
+# ============================================================
+#  CĂȘTI OVER-EAR  (editeaza liber - acelasi format ca modele.txt)
+# ============================================================
+#
+#    Nume folosit la cautare = variante din titlu, -cuvant exclus
+#
+#  - Stanga lui "=": termenul cautat pe ambele site-uri (scurt: marca + model).
+#  - Dupa "=": cum apare modelul in titluri (spatiile/cratimele nu conteaza).
+#  - Un alias cu "-" in fata ELIMINA anunturile care il contin
+#    (ex. "-pro" la BlackShark V2 ca sa nu amestece V2 cu V2 Pro).
+#  - "#" la inceputul randului dezactiveaza modelul.
+#
+#  Pe 999.md unele modele au doar cateva anunturi; daca un model apare
+#  des cu "putine anunturi", dezactiveaza-l ca sa scurtezi scanarea.
+# ============================================================
+
+# ---------- Sony (noise cancelling) ----------
+Sony WH-1000XM3 = wh-1000xm3, wh1000xm3, 1000xm3, xm3
+Sony WH-1000XM4 = wh-1000xm4, wh1000xm4, 1000xm4, xm4
+Sony WH-1000XM5 = wh-1000xm5, wh1000xm5, 1000xm5, xm5
+Sony WH-1000XM6 = wh-1000xm6, wh1000xm6, 1000xm6, xm6
+Sony WH-CH720N = ch720n, ch-720n, ch 720
+Sony ULT Wear = ult wear, ult900n, ult 900n
+
+# ---------- Bose / Apple / Sennheiser ----------
+Bose QuietComfort 45 = qc45, qc 45, quietcomfort 45
+Bose QuietComfort Ultra = qc ultra, quietcomfort ultra, -earbuds
+Bose 700 = bose 700, nc700, nc 700
+Apple AirPods Max = airpods max
+Sennheiser Momentum 4 = momentum 4
+
+# ---------- Corsair ----------
+Corsair Virtuoso = virtuoso
+Corsair HS80 = hs80, hs 80
+Corsair HS70 = hs70, hs 70
+Corsair HS65 = hs65, hs 65
+
+# ---------- Razer ----------
+Razer BlackShark V2 Pro = blackshark v2 pro
+Razer BlackShark V2 X = blackshark v2 x, blackshark v2x
+Razer BlackShark V2 = blackshark v2, -pro, -v2 x, -v2x, -hyperspeed
+Razer Kraken = kraken, -kitty
+Razer Barracuda = barracuda
+
+# ---------- SteelSeries / HyperX / Logitech ----------
+SteelSeries Arctis Nova Pro = arctis nova pro
+SteelSeries Arctis Nova 7 = arctis nova 7
+HyperX Cloud Alpha = cloud alpha
+HyperX Cloud II = cloud ii, cloud 2
+HyperX Cloud III = cloud iii, cloud 3
+Logitech G Pro X = g pro x, -superlight, -maus, -mouse, -tastatur, -keyboard, -tkl
+Logitech G733 = g733, g 733

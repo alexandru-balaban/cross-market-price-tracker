@@ -1,0 +1,127 @@
+# ============================================================
+#  LISTA DE MODELE MONITORIZATE  (editeaza liber)
+# ============================================================
+#
+#  Un model pe rand. Doua forme posibile:
+#
+#    Canon 600D
+#    Canon 600D = 600d, t3i
+#
+#  - Textul din STANGA lui "=" e folosit ca termen de cautare pe ambele
+#    site-uri. Tine-l scurt: marca + model (ex. "Canon 600D", nu
+#    "Canon EOS 600D Kit 18-55").
+#  - Dupa "=" (optional) pui variantele de scriere ale modelului, separate
+#    prin virgula. Scriptul pastreaza doar anunturile al caror titlu
+#    contine una dintre ele. Spatiile si cratimele nu conteaza
+#    ("x-t3" prinde si "XT3" si "X T3").
+#    Daca nu pui "=", se foloseste numele fara marca (ex. "600d").
+#  - Un "#" la inceputul randului dezactiveaza modelul (e ignorat).
+#
+#  Modelele "Mark II/III" sunt separate automat: "a7 iii" NU prinde
+#  "a7 ii" sau "a7r iii", iar "z6" NU prinde "z6 ii".
+#
+#  Toate au pret uzual la mana a doua sub ~1000 EUR (sept 2026).
+# ============================================================
+
+# ---------- Canon DSLR (entry / mid) ----------
+Canon 100D = 100d, sl1
+Canon 250D = 250d, sl3
+Canon 600D = 600d, t3i
+Canon 650D = 650d, t4i
+Canon 700D = 700d, t5i
+Canon 750D = 750d, t6i
+Canon 800D = 800d, t7i
+Canon 1200D = 1200d, t5
+Canon 1300D = 1300d, t6
+Canon 2000D = 2000d, t7
+Canon 4000D = 4000d, t100
+Canon 60D = 60d
+Canon 70D = 70d
+Canon 77D = 77d
+Canon 80D = 80d
+Canon 90D = 90d
+Canon 7D = 7d
+Canon 7D Mark II = 7d mark ii, 7d mk ii, 7d ii, 7d mark 2, 7d mk2
+Canon 6D = 6d
+Canon 6D Mark II = 6d mark ii, 6d mk ii, 6d ii, 6d mark 2, 6d mk2
+Canon 5D Mark III = 5d mark iii, 5d mk iii, 5d iii, 5d mark 3, 5d mk3
+
+# ---------- Canon mirrorless / compacte ----------
+Canon EOS RP = eos rp, canon rp
+Canon EOS R = eos r, canon r
+Canon R10 = r10
+Canon R50 = r50
+Canon R100 = r100
+Canon M50 = m50
+Canon M50 Mark II = m50 mark ii, m50 mk ii, m50 ii, m50 mark 2
+Canon M6 Mark II = m6 mark ii, m6 mk ii, m6 ii
+Canon G7X Mark II = g7x mark ii, g7x mk ii, g7x ii, g7x mark 2, g7xii
+Canon G7X Mark III = g7x mark iii, g7x mk iii, g7x iii, g7x mark 3, g7xiii
+
+# ---------- Nikon DSLR ----------
+Nikon D3100 = d3100
+Nikon D3200 = d3200
+Nikon D3300 = d3300
+Nikon D3400 = d3400
+Nikon D3500 = d3500
+Nikon D5100 = d5100
+Nikon D5200 = d5200
+Nikon D5300 = d5300
+Nikon D5500 = d5500
+Nikon D5600 = d5600
+Nikon D90 = d90
+Nikon D7000 = d7000
+Nikon D7100 = d7100
+Nikon D7200 = d7200
+Nikon D7500 = d7500
+Nikon D610 = d610
+Nikon D750 = d750
+Nikon D500 = d500
+
+# ---------- Nikon mirrorless ----------
+Nikon Z50 = z50
+Nikon Z fc = z fc, zfc
+Nikon Z5 = z5
+Nikon Z6 = z6
+
+# ---------- Sony ----------
+Sony A6000 = a6000, alpha 6000, ilce-6000
+Sony A6100 = a6100, alpha 6100, ilce-6100
+Sony A6300 = a6300, alpha 6300, ilce-6300
+Sony A6400 = a6400, alpha 6400, ilce-6400
+Sony A6500 = a6500, alpha 6500, ilce-6500
+Sony A6600 = a6600, alpha 6600, ilce-6600
+Sony ZV-E10 = zv-e10, zve10
+Sony ZV-1 = zv-1, zv1
+Sony ZV-1F = zv-1f, zv1f
+Sony A7 II = a7 ii, a7ii, a7 mark ii, a7 mk ii, a7m2, ilce-7m2, alpha 7 ii
+Sony A7 III = a7 iii, a7iii, a7 mark iii, a7 mk iii, a7m3, ilce-7m3, alpha 7 iii
+Sony A7R II = a7r ii, a7rii, a7r mark ii, a7rm2, ilce-7rm2
+Sony A7C = a7c, ilce-7c
+Sony RX100 III = rx100 iii, rx100iii, rx100 m3, rx100 mark iii
+Sony RX100 V = rx100 v, rx100v, rx100 m5, rx100 mark v
+
+# ---------- Fujifilm ----------
+Fujifilm X-T2 = x-t2
+Fujifilm X-T3 = x-t3
+Fujifilm X-T20 = x-t20
+Fujifilm X-T30 = x-t30
+Fujifilm X-S10 = x-s10
+Fujifilm X-E3 = x-e3
+Fujifilm X-E4 = x-e4
+Fujifilm X100F = x100f
+
+# ---------- Panasonic ----------
+Panasonic GH4 = gh4
+Panasonic GH5 = gh5
+Panasonic G80 = g80, g85
+Panasonic GX80 = gx80, gx85
+Panasonic G9 = g9
+Panasonic FZ1000 = fz1000
+Panasonic S5 = lumix s5, dc-s5
+
+# ---------- Olympus / OM System ----------
+Olympus E-M10 Mark III = e-m10 mark iii, e-m10 iii, em10 iii, e-m10 mk iii, e-m10 mark 3
+Olympus E-M10 Mark IV = e-m10 mark iv, e-m10 iv, em10 iv, e-m10 mk iv, e-m10 mark 4
+Olympus E-M5 Mark II = e-m5 mark ii, e-m5 ii, em5 ii, e-m5 mk ii
+Olympus E-M1 Mark II = e-m1 mark ii, e-m1 ii, em1 ii, e-m1 mk ii

@@ -1,0 +1,21 @@
+# Ce NU urca git pe GitHub.
+
+# Secrete - NICIODATA pe GitHub (tokenul botului Telegram, chat id)
+.env
+
+# Mediul Python si fisierele compilate (se refac singure)
+.venv/
+__pycache__/
+*.pyc
+
+# Date si stare generate la rulare (se schimba la fiecare scanare)
+price_monitor.db
+trimise_telegram.json
+trimise_watchlist.json
+rapoarte/
+
+# Fisiere de debug
+raspuns_debug.html
+
+# macOS
+.DS_Store

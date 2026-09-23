@@ -1,0 +1,34 @@
+# ============================================================
+#  CONSOLE  (acelasi format ca modele.txt)
+#    Nume folosit la cautare = variante din titlu, -cuvant exclus
+#  Alias cu "-" in fata = anunturile care il contin sunt eliminate
+#  (ex. "PS5" exclude "pro" ca sa nu amestece PS5 cu PS5 Pro).
+#  Controlerele vandute separat sunt in modele_controlere.txt.
+# ============================================================
+
+# ---------- PlayStation ----------
+PS5 Pro = ps5 pro, playstation 5 pro
+PS5 Slim = ps5 slim, playstation 5 slim, -pro
+PS5 = ps5, playstation 5, -slim, -pro, -portal
+PS4 Pro = ps4 pro, playstation 4 pro
+PS4 Slim = ps4 slim, playstation 4 slim
+PS4 = ps4, playstation 4, -pro, -slim
+PlayStation Portal = playstation portal, ps portal, ps5 portal
+
+# ---------- Xbox ----------
+Xbox Series X = xbox series x, series x
+Xbox Series S = xbox series s, series s
+Xbox One X = xbox one x, one x
+Xbox One S = xbox one s, one s
+
+# ---------- Nintendo ----------
+Nintendo Switch 2 = switch 2
+Nintendo Switch OLED = switch oled
+Nintendo Switch Lite = switch lite
+Nintendo Switch = nintendo switch, switch konsole, -oled, -lite, -switch 2
+
+# ---------- PC portabile ----------
+Steam Deck OLED = steam deck oled
+Steam Deck = steam deck, -oled
+ASUS ROG Ally X = rog ally x
+ASUS ROG Ally = rog ally, -ally x
