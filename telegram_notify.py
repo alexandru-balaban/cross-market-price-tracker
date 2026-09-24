@@ -224,6 +224,23 @@ def format_rezumat(randuri, run_at, n_noi, n_total):
     return "\n".join(lines)
 
 
+def _info_vanzari(c):
+    """O linie extra cand avem destul istoric ca sa spunem cat de des se vand
+    anunturi similare pentru modelul asta (vezi compara.rata_vanzare si
+    verifica_vanzari.py) - o idee de cat de REAL e chilipirul, nu doar pe hartie."""
+    try:
+        from compara import rata_vanzare
+        r = rata_vanzare(c["model"], c["tara"])
+    except Exception:
+        return None
+    if not r:
+        return None
+    zile = r["ore_medii_pe_piata"] / 24 if r["ore_medii_pe_piata"] is not None else None
+    cat_zile = f", ~{zile:.1f} zile pe piață" if zile else ""
+    return (f"📈 {r['disparute']}/{r['urmarite']} anunțuri urmărite pt. acest model au dispărut "
+            f"de pe piață (probabil vândute){cat_zile}")
+
+
 def format_chilipir(c):
     if c["tara"] == "DE":
         steag, alta = "🇩🇪 → 🇲🇩", "MD"
@@ -232,13 +249,17 @@ def format_chilipir(c):
     pret = f"{c['pret_EUR']} €"
     if not str(c.get("pret_original", "")).endswith("EUR"):
         pret += f" ({_e(c['pret_original'])})"
-    return "\n".join([
+    linii = [
         f"{steag} {_emoji(c.get('categorie'))} <b>{_e(c['model'])}</b>",
         _e(c["titlu"]),
         f"💶 {pret}",
         f"📊 Mediana {alta}: {c['mediana_tara_cealalta']} € · cu {c['sub_mediana_%']:g}% sub",
         f"💰 Profit estimat: <b>~{c['profit_estimat_EUR']} €</b>",
-    ])
+    ]
+    info = _info_vanzari(c)
+    if info:
+        linii.append(info)
+    return "\n".join(linii)
 
 
 # ============================================================

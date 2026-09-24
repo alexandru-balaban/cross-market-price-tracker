@@ -20,6 +20,7 @@ Cat timp ruleaza (terminalul ramane deschis, Ctrl+C il opreste):
         /watchlist          ce e in watchlist
         /adauga Garmin Forerunner 265 ; max 250    adauga in watchlist
         /sterge Garmin Forerunner 265              scoate din watchlist
+        /vanzari            cat de des dispar (probabil se vand) anunturile urmarite
     Poti scrie si direct numele modelului sau al categoriei.
   - verifica watchlist-ul personal la fiecare WATCHLIST_MINUTE minute.
   - la pornire iti trimite un mesaj cu butoane: scanare completa sau o categorie.
@@ -59,6 +60,7 @@ COMENZI = [
     ("watchlist", "Ce e în watchlist"),
     ("adauga", "Adaugă în watchlist: Nume ; max 120"),
     ("sterge", "Scoate din watchlist: Nume"),
+    ("vanzari", "Cât de reale sunt chilipirurile (istoric)"),
     ("status", "Starea botului"),
     ("help", "Ajutor"),
 ]
@@ -82,6 +84,8 @@ def ajutor():
         "<code>/adauga Garmin Forerunner 265 ; max 250</code>\n"
         "<code>/adauga ASICS Novablast ; max 90 ; marime 44</code>\n"
         "/sterge Garmin Forerunner 265\n\n"
+        "/vanzari — cât de des dispar (probabil se vând) anunțurile urmărite\n"
+        "/vanzari casti — doar o categorie · /vanzari Sony A7 III — un model\n\n"
         "Poți scrie și direct numele modelului sau al categoriei."
     )
 
@@ -188,6 +192,43 @@ def lista_watchlist():
     for p in produse:
         marime = f", mărime {p['marime']}" if p["marime"] else ""
         linii.append(f"• {html.escape(p['nume'])} — max {p['max']:g} €{marime}")
+    return "\n".join(linii)
+
+
+def fmt_pct(v):
+    return "-" if v is None else f"{v:g}%"
+
+
+def mesaj_vanzari(tinta=None):
+    """Raport de vanzari pentru Telegram (vezi si verifica_vanzari.py in terminal)."""
+    prima, ultima, n = compara.acoperire()
+    if not n:
+        return "Nu există încă istoric - rulează întâi o scanare (/scan)."
+    linii = ["📈 <b>Cât de reale sunt chilipirurile</b>", f"Istoric: {n} scanări între {prima} și {ultima}."]
+    if n < 10:
+        linii.append("Puține scanări deocamdată - cifrele sunt doar orientative.")
+
+    model = categorie = None
+    if tinta:
+        t = tinta.strip().lower()
+        if t in compara.CATEGORII:
+            categorie = t
+        else:
+            model = gaseste_tinta(tinta) or tinta
+
+    stats = compara.statistici_vanzari(model=model, categorie=categorie)
+    if not stats:
+        tinta_txt = f" pentru „{html.escape(tinta)}”" if tinta else ""
+        linii.append(f"\nÎncă n-am observat niciun anunț dispărând{tinta_txt}.")
+        return "\n".join(linii)
+
+    linii.append("")
+    for r in stats[:20]:
+        zile = f", ~{r['ore_medii_pe_piata'] / 24:.1f} zile pe piață" if r["ore_medii_pe_piata"] else ""
+        linii.append(f"• <b>{html.escape(r['model'])}</b> [{r['sursa']}]: {r['disparute']}/{r['urmarite']} "
+                     f"dispărute ({fmt_pct(r['rata_%'])}){zile}")
+    if len(stats) > 20:
+        linii.append(f"… și încă {len(stats) - 20}")
     return "\n".join(linii)
 
 
@@ -299,6 +340,9 @@ def trateaza(text, chat):
                           f"({cat['fisier_modele']}) · /scan {cheie}\n"
                           + ", ".join(html.escape(n) for n in nume))
         tg.send_message("\n\n".join(bucati) or "Nu există categoria asta.", chat)
+
+    elif cmd == "/vanzari":
+        tg.send_message(mesaj_vanzari(arg or None), chat)
 
     elif cmd == "/status":
         lines = [f"🟢 Botul rulează · {len(modele())} modele în {len(compara.CATEGORII)} categorii"]

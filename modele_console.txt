@@ -7,11 +7,11 @@
 # ============================================================
 
 # ---------- PlayStation ----------
-PS5 Pro = ps5 pro, playstation 5 pro
+PS5 Pro = ps5 pro, playstation 5 pro, -slim
 PS5 Slim = ps5 slim, playstation 5 slim, -pro
 PS5 = ps5, playstation 5, -slim, -pro, -portal
-PS4 Pro = ps4 pro, playstation 4 pro
-PS4 Slim = ps4 slim, playstation 4 slim
+PS4 Pro = ps4 pro, playstation 4 pro, -slim
+PS4 Slim = ps4 slim, playstation 4 slim, -pro
 PS4 = ps4, playstation 4, -pro, -slim
 PlayStation Portal = playstation portal, ps portal, ps5 portal
 

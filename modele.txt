@@ -48,7 +48,7 @@ Canon 5D Mark III = 5d mark iii, 5d mk iii, 5d iii, 5d mark 3, 5d mk3
 
 # ---------- Canon mirrorless / compacte ----------
 Canon EOS RP = eos rp, canon rp
-Canon EOS R = eos r, canon r
+Canon EOS R = eos r, canon r, -r3, -r5, -r6, -r7, -r8, -r10, -r50, -r100, -r1000
 Canon R10 = r10
 Canon R50 = r50
 Canon R100 = r100

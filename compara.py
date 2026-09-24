@@ -30,6 +30,10 @@ Rezultatele: tabel in terminal + mesaj pe Telegram (vezi telegram_notify.py)
 + istoric in price_monitor.db. CSV-uri in "rapoarte/" doar daca SALVEAZA_CSV = True.
 Pentru bot cu comenzi si scanari automate: python3 bot.py
 
+La fiecare scanare comparam si cu scanarea anterioara a aceluiasi model, ca
+sa vedem ce anunturi au disparut intre timp (probabil vandute) - vezi
+actualizeaza_disparitii() / statistici_vanzari() si verifica_vanzari.py.
+
 Depinde de scraper_kleinanzeigen.py si scraper_999.py (acelasi folder).
 """
 
@@ -226,6 +230,126 @@ def titlu_valid(titlu, model, cat):
     return True
 
 
+# Memorate per categorie, golite la inceputul fiecarei scanari (ruleaza()) -
+# ca editarile din modele*.txt sa se vada la scanarea urmatoare fara sa
+# reparsam fisierul la fiecare anunt in parte.
+_CUVINTE_DISTINCTE_CACHE = {}
+
+# Peste cate modele cu ACELASI prefix comun (ex. "Canon" la 30+ modele Canon)
+# consideram acel prefix prea generic ca sa mai insemne o "familie" de variante
+# inrudite (ex. "PS5" la doar 3 modele: PS5, PS5 Pro, PS5 Slim) - si NU mai
+# generam relatii alt_model_in_titlu din el. Fara acest prag, orice model
+# Canon/Nikon/Sony ar fi marcat "frate" cu ZECI de alte modele ale aceleiasi
+# marci (singurul lucru comun fiind numele marcii, nu o gama anume), si un
+# anunt legitim care doar mentioneaza un alt model compatibil ("obiectiv
+# potrivit si pt. 600D/700D") ar fi respins gresit.
+PRAG_MARIME_GRUP_FRATI = 5
+
+
+def _cuvinte_distincte_categorie(categorie):
+    """Pentru fiecare model dintr-o categorie, cuvintele care apartin unui
+    "frate" cu care modelul imparte un prefix comun SI restrans (vezi
+    PRAG_MARIME_GRUP_FRATI) - ex. "PS5 Pro" si "PS5 Slim" impart "PS5"
+    (doar 3 modele il folosesc) -> cuvantul distinct pt. PS5 Pro e "slim",
+    cel pt. PS5 Slim e "pro"; "Canon EOS R" si "Canon EOS RP" impart
+    "Canon EOS" (doar 2 modele) -> distinct pt. R e "rp". Cuvintele de sub
+    3 litere sunt ignorate (prea generice/riscante ca potriviri de sine
+    statatoare, ex. "R", "II"). Folosit de alt_model_in_titlu ca sa prinda
+    anunturi tip "magazin" ce listeaza mai multe variante intr-un titlu,
+    fara sa scrie fraza completa a fiecareia (ex. "Playstation 5 PRO /
+    Slim" - "Slim" nu e lipit de "Playstation 5", deci fraza "ps5 slim" nu
+    se potriveste)."""
+    if categorie in _CUVINTE_DISTINCTE_CACHE:
+        return _CUVINTE_DISTINCTE_CACHE[categorie]
+    modele = toate_modele(categorie)
+    # cate modele incep cu fiecare prefix posibil (tuplu de cuvinte, lowercase) -
+    # ca sa deosebim o gama restransa (ex. "ps5" -> 3 modele) de marca intreaga
+    # (ex. "canon" -> 30+ modele).
+    marime_grup = {}
+    for m in modele:
+        cuvinte = tuple(w.lower() for w in m["nume"].split())
+        for lungime in range(1, len(cuvinte) + 1):
+            prefix = cuvinte[:lungime]
+            marime_grup[prefix] = marime_grup.get(prefix, 0) + 1
+    rezultat = {}
+    for m in modele:
+        cuvinte_m = m["nume"].split()
+        distincte = set()
+        for alt in modele:
+            if alt is m:
+                continue
+            cuvinte_alt = alt["nume"].split()
+            comun = 0
+            for a, b in zip(cuvinte_m, cuvinte_alt):
+                if a.lower() == b.lower():
+                    comun += 1
+                else:
+                    break
+            # prefix comun de macar un cuvant SI celalalt model are ceva dupa acel prefix
+            if comun >= 1 and comun < len(cuvinte_alt):
+                prefix = tuple(w.lower() for w in cuvinte_m[:comun])
+                if marime_grup.get(prefix, 0) > PRAG_MARIME_GRUP_FRATI:
+                    continue  # prefix prea generic (marca intreaga) - sarim
+                cuvant = cuvinte_alt[comun].lower()
+                if len(cuvant) >= 3:
+                    distincte.add(cuvant)
+        rezultat[m["nume"]] = distincte
+    _CUVINTE_DISTINCTE_CACHE[categorie] = rezultat
+    return rezultat
+
+
+def alt_model_in_titlu(titlu, model):
+    """True daca titlul contine, ca CUVANT DE SINE STATATOR, ceva ce apartine
+    altui model din aceeasi categorie (vezi _cuvinte_distincte_categorie) -
+    semn ca anuntul listeaza mai multe variante/produse (anunt de magazin),
+    nu un singur produs, deci pretul afisat poate sa nu corespunda modelului
+    cautat. Nu necesita ca varianta sa fie scrisa ca fraza completa langa
+    numele marcii - de-aia exista, pe langa excluderile "-cuvant" din
+    modele*.txt (care prind doar fraze complete lipite de model)."""
+    distincte = _cuvinte_distincte_categorie(model["categorie"]).get(model["nume"])
+    if not distincte:
+        return False
+    t = titlu.lower()
+    return any(re.search(r"(?<![a-z0-9])" + re.escape(c) + r"(?![a-z0-9])", t) for c in distincte)
+
+
+# Memorate per categorie, golite la inceputul fiecarei scanari (ruleaza()) -
+# lista de modele ale categoriei, ca sa n-o recitim din fisier la fiecare
+# anunt (vezi alt_model_valid_in_titlu).
+_MODELE_CATEGORIE_CACHE = {}
+
+
+def _modele_categorie(categorie):
+    if categorie not in _MODELE_CATEGORIE_CACHE:
+        _MODELE_CATEGORIE_CACHE[categorie] = toate_modele(categorie)
+    return _MODELE_CATEGORIE_CACHE[categorie]
+
+
+def alt_model_valid_in_titlu(titlu, model, cat):
+    """True daca titlul se potriveste integral (fraza completa + fara
+    excluderile lui, exact ca titlu_valid) si cu un ALT model din aceeasi
+    categorie - nu neaparat "frate" de-al modelului cautat (vezi
+    alt_model_in_titlu de mai sus, care prinde doar variante ale ACELUIASI
+    model), ci orice alt produs monitorizat. Prinde anunturile de magazin
+    care listeaza produse complet diferite in acelasi titlu, ex.
+    "Nintendo Switch si Sony PlayStation 5" sau "Xbox Series S, X / Sony
+    PlayStation 5" - niciun model nu poate fi "frate" cu celalalt (nu impart
+    niciun prefix din nume), deci alt_model_in_titlu nu le prinde, dar
+    fiecare se potriveste, separat, cu fraza lui completa. Cand se intampla
+    asta pretul afisat nu se poate atribui cu incredere unui singur produs.
+
+    Risc cunoscut: un anunt legitim cu UN singur produs poate mentiona
+    incidental alt model monitorizat (ex. "PS5, eventual schimb cu Switch")
+    si sa fie respins gresit - e o compensare deliberata, in favoarea
+    increderii in pretul afisat pentru chilipiruri."""
+    for alt in _modele_categorie(model["categorie"]):
+        if alt["nume"] == model["nume"]:
+            continue
+        if titlu_valid(titlu, alt, cat):
+            return True
+    return False
+
+
 # ---------------- Kleinanzeigen ----------------
 
 def slug(text):
@@ -398,6 +522,10 @@ def curata(anunturi, model, cat):
     for a in anunturi:
         if a["pret_eur"] < cat["pret_minim_eur"] or not titlu_valid(a["titlu"], model, cat):
             continue
+        if alt_model_in_titlu(a["titlu"], model):
+            continue   # anunt cu mai multe variante ale ACELUIASI model - pretul poate sa nu corespunda
+        if alt_model_valid_in_titlu(a["titlu"], model, cat):
+            continue   # anunt tip magazin cu alt produs monitorizat, complet diferit, in acelasi titlu
         # pe 999 acelasi vanzator reposteaza des acelasi anunt
         cheie = (re.sub(r"\W+", "", a["titlu"].lower()), round(a["pret_eur"]))
         if a["id"] in vazute or cheie in vazute:
@@ -487,6 +615,7 @@ def salveaza_istoric(run_at, model, anunturi):
             pret_eur REAL, pret_original REAL, moneda TEXT
         )
     """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_model_prices_model_run ON model_prices(model, run_at)")
     conn.executemany("""
         INSERT INTO model_prices (run_at, model, sursa, ad_id, titlu, url, pret_eur, pret_original, moneda)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -494,6 +623,191 @@ def salveaza_istoric(run_at, model, anunturi):
            a["pret_original"], a["moneda"]) for a in anunturi])
     conn.commit()
     conn.close()
+
+
+# ---------------- istoric: dispar anunturi = probabil vandute ----------------
+# (vezi verifica_vanzari.py pentru raportul complet si limitarile aproximarii)
+#
+# Doua reguli invatate testand pe datele reale din prima zi (fara ele, ~97%
+# din "disparitii" erau zgomot, nu vanzari - vezi verifica_vanzari.py):
+#  1. PRAG_ORE_INTRE_SCANARI: nu comparam doua scanari facute la mai putin de
+#     o ora distanta (reveniri rapide manuale in acelasi test), ca sa nu
+#     confundam reordonarea paginii cu vanzari.
+#  2. Un anunt numaram ca "disparut" doar daca a fost vazut in CEL PUTIN doua
+#     scanari inainte sa dispara (nu doar una) - un anunt vazut o singura
+#     data si apoi absent e aproape sigur doar iesit de pe pagina 1
+#     (categoriile cu o singura pagina scanata gasesc anunturi noi la fiecare
+#     rulare, care impinge in afara paginii anunturi mai vechi, dar inca
+#     active), nu neaparat vandut.
+PRAG_ORE_INTRE_SCANARI = 1.0
+
+
+def _ore_intre(t1, t2):
+    """Diferenta in ore intre doua timestamp-uri "YYYY-MM-DD HH:MM"."""
+    f = "%Y-%m-%d %H:%M"
+    return round((datetime.strptime(t2, f) - datetime.strptime(t1, f)).total_seconds() / 3600, 1)
+
+
+def _creeaza_tabel_disparitii(conn):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS disparitii (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            model TEXT, categorie TEXT, sursa TEXT, ad_id TEXT,
+            titlu TEXT, url TEXT, pret_eur REAL,
+            prima_data TEXT, ultima_data TEXT, disparut_la TEXT, ore_pe_piata REAL,
+            UNIQUE(model, sursa, ad_id)
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_disparitii_model_sursa ON disparitii(model, sursa)")
+
+
+def actualizeaza_disparitii(model_nume, categorie, run_at):
+    """Compara anunturile modelului din scanarea CURENTA (run_at) cu cele din
+    scanarea ANTERIOARA a aceluiasi model si inregistreaza in tabelul
+    'disparitii' pe cele care nu mai apar - probabil vandute sau scoase de
+    pe site. Nu face nimic daca e prima scanare a modelului (nu exista
+    "anterior" cu care sa compare). Intoarce cate anunturi noi a inregistrat.
+
+    E doar o aproximare (vezi verifica_vanzari.py): un anunt poate disparea
+    si pentru ca a iesit din paginile scanate, nu neaparat ca s-a vandut.
+    Cu cat se aduna mai multe scanari, cu atat statistica devine mai de
+    incredere - de-asta se face la fiecare rulare, nu doar o data."""
+    conn = sqlite3.connect(DB_PATH)
+    _creeaza_tabel_disparitii(conn)
+    cur = conn.cursor()
+
+    cur.execute("SELECT DISTINCT run_at FROM model_prices WHERE model=? AND run_at<? ORDER BY run_at DESC LIMIT 1",
+                (model_nume, run_at))
+    row = cur.fetchone()
+    if not row:
+        conn.close()
+        return 0
+    run_anterior = row[0]
+    if _ore_intre(run_anterior, run_at) < PRAG_ORE_INTRE_SCANARI:
+        conn.close()
+        return 0
+
+    cur.execute("SELECT sursa, ad_id, titlu, url, pret_eur FROM model_prices WHERE model=? AND run_at=?",
+                (model_nume, run_anterior))
+    anterioare = {(s, aid): (t, u, p) for s, aid, t, u, p in cur.fetchall()}
+    cur.execute("SELECT DISTINCT sursa, ad_id FROM model_prices WHERE model=? AND run_at=?",
+                (model_nume, run_at))
+    curente = {(s, aid) for s, aid in cur.fetchall()}
+
+    n = 0
+    for (sursa, ad_id), (titlu, url, pret) in anterioare.items():
+        if (sursa, ad_id) in curente:
+            continue
+        cur.execute("SELECT MIN(run_at) FROM model_prices WHERE model=? AND sursa=? AND ad_id=?",
+                    (model_nume, sursa, ad_id))
+        prima = cur.fetchone()[0] or run_anterior
+        if prima == run_anterior:
+            continue   # vazut o singura data - probabil doar zgomot de paginare (vezi mai sus)
+        cur.execute("""
+            INSERT OR IGNORE INTO disparitii
+                (model, categorie, sursa, ad_id, titlu, url, pret_eur,
+                 prima_data, ultima_data, disparut_la, ore_pe_piata)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (model_nume, categorie, sursa, ad_id, titlu, url, pret,
+              prima, run_anterior, run_at, _ore_intre(prima, run_anterior)))
+        n += cur.rowcount
+    conn.commit()
+    conn.close()
+    return n
+
+
+def acoperire():
+    """(prima_scanare, ultima_scanare, numar_scanari) - cat de multa incredere
+    sa ai in statistici_vanzari() / rata_vanzare()."""
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT MIN(run_at), MAX(run_at), COUNT(DISTINCT run_at) FROM model_prices")
+    prima, ultima, n = cur.fetchone()
+    conn.close()
+    return prima, ultima, n or 0
+
+
+def statistici_vanzari(model=None, categorie=None):
+    """Pentru fiecare (model, tara): cate anunturi distincte am urmarit in cel
+    putin 2 scanari diferite ("urmarite" - un anunt vazut o singura data n-a
+    avut cum sa fie confirmat "disparut", vezi actualizeaza_disparitii), cate
+    au disparut (probabil vandute/scoase) si cate ore au stat in medie pe
+    piata inainte sa dispara. Folosit de verifica_vanzari.py si de mesajele
+    de pe Telegram (rata_vanzare)."""
+    conn = sqlite3.connect(DB_PATH)
+    _creeaza_tabel_disparitii(conn)
+    cur = conn.cursor()
+
+    # model_prices nu are coloana "categorie" (doar tabelul disparitii) -
+    # pentru categorie filtram dupa lista de modele din fisierele curente
+    filtre_mp, param_mp = [], []
+    if model:
+        filtre_mp.append("model = ?")
+        param_mp.append(model)
+    if categorie:
+        nume_modele = [m["nume"] for m in toate_modele(categorie)]
+        if not nume_modele:
+            conn.close()
+            return []
+        filtre_mp.append(f"model IN ({','.join('?' * len(nume_modele))})")
+        param_mp.extend(nume_modele)
+    unde_mp = (" AND " + " AND ".join(filtre_mp)) if filtre_mp else ""
+
+    cur.execute(f"""
+        SELECT model, sursa, COUNT(*) FROM (
+            SELECT model, sursa, ad_id FROM model_prices
+            WHERE 1=1{unde_mp}
+            GROUP BY model, sursa, ad_id
+            HAVING COUNT(DISTINCT run_at) >= 2
+        ) GROUP BY model, sursa
+    """, param_mp)
+    urmarite = {(m, s): n for m, s, n in cur.fetchall()}
+
+    filtre_d, param_d = [], []
+    if model:
+        filtre_d.append("model = ?")
+        param_d.append(model)
+    if categorie:
+        filtre_d.append("categorie = ?")
+        param_d.append(categorie)
+    unde_d = (" AND " + " AND ".join(filtre_d)) if filtre_d else ""
+
+    cur.execute(f"SELECT model, sursa, COUNT(*), AVG(ore_pe_piata) FROM disparitii WHERE 1=1{unde_d} GROUP BY model, sursa",
+                param_d)
+    rezultat = []
+    for m, s, n_disp, ore_medii in cur.fetchall():
+        n_urm = urmarite.get((m, s), n_disp)
+        rezultat.append({
+            "model": m, "sursa": s, "urmarite": n_urm, "disparute": n_disp,
+            "rata_%": round(100 * n_disp / n_urm, 1) if n_urm else None,
+            "ore_medii_pe_piata": round(ore_medii, 1) if ore_medii is not None else None,
+        })
+    conn.close()
+    rezultat.sort(key=lambda r: r["disparute"], reverse=True)
+    return rezultat
+
+
+PRAG_ORE_ACOPERIRE_TELEGRAM = 48.0   # sub atat nu aratam rata_vanzare pe Telegram (prea putin istoric)
+
+
+def rata_vanzare(model, sursa, minim_urmarite=5, minim_disparute=2):
+    """Statistica pentru o singura pereche (model, tara), doar daca avem destule
+    date sa fie relevanta: cel putin PRAG_ORE_ACOPERIRE_TELEGRAM ore de istoric
+    in total (nu doar cateva scanari facute in aceeasi zi/sesiune - vezi
+    verifica_vanzari.py) SI cel putin minim_urmarite anunturi urmarite /
+    minim_disparute disparute pentru perechea asta. Intoarce None altfel.
+    Folosit la formatarea mesajelor de chilipir pe Telegram
+    (telegram_notify.format_chilipir) - pragul e mai strict decat in
+    statistici_vanzari() ca sa nu trimitem pe Telegram cifre premature."""
+    prima, ultima, n = acoperire()
+    if n < 2 or _ore_intre(prima, ultima) < PRAG_ORE_ACOPERIRE_TELEGRAM:
+        return None
+    for r in statistici_vanzari(model):
+        if r["sursa"] == sursa:
+            if r["urmarite"] >= minim_urmarite and r["disparute"] >= minim_disparute:
+                return r
+            return None
+    return None
 
 
 def fmt(v, suffix=""):
@@ -524,6 +838,8 @@ def durata_estimata_min(n_modele):
 
 def ruleaza(tinta=None):
     """Scaneaza modelele si intoarce (randuri, chilipiruri, run_at). Folosit de main() si de bot.py."""
+    _CUVINTE_DISTINCTE_CACHE.clear()   # reciteste modele*.txt daca s-au editat de la scanarea trecuta
+    _MODELE_CATEGORIE_CACHE.clear()
     modele = selecteaza(tinta)
     rates = scraper_999.get_rates()
     run_at = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -556,6 +872,7 @@ def ruleaza(tinta=None):
         randuri.append(rand)
         toate_chilipiruri.extend(chil)
         salveaza_istoric(run_at, m["nume"], de + md)
+        actualizeaza_disparitii(m["nume"], m["categorie"], run_at)
         print(f"DE {rand['n_DE']} anunturi, mediana {fmt(rand['mediana_DE'], ' EUR')} | MD "
               f"{rand['n_MD']} anunturi, mediana {fmt(rand['mediana_MD'], ' EUR')}")
         if i < len(modele):

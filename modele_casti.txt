@@ -45,8 +45,8 @@ Razer Barracuda = barracuda
 # ---------- SteelSeries / HyperX / Logitech ----------
 SteelSeries Arctis Nova Pro = arctis nova pro
 SteelSeries Arctis Nova 7 = arctis nova 7
-HyperX Cloud Alpha = cloud alpha
+HyperX Cloud Alpha = cloud alpha, -alpha s, -alpha wireless
 HyperX Cloud II = cloud ii, cloud 2
-HyperX Cloud III = cloud iii, cloud 3
+HyperX Cloud III = cloud iii, cloud 3, -iii s, -3s
 Logitech G Pro X = g pro x, -superlight, -maus, -mouse, -tastatur, -keyboard, -tkl
 Logitech G733 = g733, g 733
