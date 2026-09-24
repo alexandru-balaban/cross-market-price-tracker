@@ -1,0 +1,63 @@
+# ============================================================
+#  MONITOARE GAMING  (acelasi format ca modele.txt)
+#    Nume folosit la cautare = variante din titlu, -cuvant exclus
+#
+#  IMPORTANT: aici NU exista o verificare automata a rezolutiei/refresh-ului
+#  din titlul anuntului - filtrul "minim 1920x1080 + minim 144Hz" se aplica
+#  prin CE MODELE alegem sa punem in lista de mai jos. Cand adaugi un model
+#  nou, verifica-i intai specificatiile (de obicei in numele modelului insusi
+#  gasesti seria, dar Hz-ul/rezolutia trebuie confirmate separat) inainte
+#  sa-l adaugi aici.
+#
+#  Un "#" la inceputul randului dezactiveaza modelul.
+# ============================================================
+
+# ---------- AOC ----------
+AOC 24G2 = 24g2, aoc 24g2
+AOC C24G1 = c24g1
+AOC Q27G3XMN = q27g3xmn, q27g3x
+AOC CQ27G2 = cq27g2
+
+# ---------- ASUS ----------
+ASUS VG248QE = vg248qe
+ASUS TUF VG27AQ = vg27aq
+ASUS TUF VG259QM = vg259qm
+ASUS ROG PG259QN = pg259qn
+ASUS ROG XG27AQ = xg27aq
+
+# ---------- BenQ / Zowie ----------
+BenQ Zowie XL2411 = xl2411
+BenQ Zowie XL2540 = xl2540
+BenQ EX2510 = ex2510
+
+# ---------- Samsung Odyssey ----------
+Samsung Odyssey G3 = odyssey g3
+Samsung Odyssey G5 = odyssey g5
+Samsung Odyssey G7 = odyssey g7
+Samsung Odyssey G9 = odyssey g9
+
+# ---------- LG UltraGear ----------
+LG 24GN600 = 24gn600
+LG 27GN800 = 27gn800
+LG 27GP850 = 27gp850
+LG 27GN950 = 27gn950
+
+# ---------- Acer / Predator / Nitro ----------
+Acer Predator XB271HU = xb271hu
+Acer Nitro XV272U = xv272u
+
+# ---------- Dell / Alienware ----------
+Dell S2721DGF = s2721dgf
+Alienware AW2521H = aw2521h
+Alienware AW2721D = aw2721d
+
+# ---------- Gigabyte / AORUS ----------
+Gigabyte G27F = g27f
+Gigabyte AORUS FI27Q = fi27q
+
+# ---------- MSI ----------
+MSI MAG241C = mag241c
+MSI MAG274QRF = mag274qrf
+
+# ---------- ViewSonic ----------
+ViewSonic XG2401 = xg2401

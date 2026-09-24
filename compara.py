@@ -144,6 +144,21 @@ CATEGORII = {
                             "зарядн", "incarcator", "încărcător", "grip", "thumb", "silikon",
                             "halterung", "ständer", "akku für", "akku fuer", "tausch"],
     },
+    "monitoare": {
+        "nume": "Monitoare gaming", "emoji": "🖥️",
+        "fisier_modele": "modele_monitoare.txt",
+        # doar modelele DIN LISTA (modele_monitoare.txt) sunt monitorizate, si lista
+        # contine doar modele cu minim 1920x1080 (Full HD) si minim 144Hz - pragul se
+        # aplica la selectia modelelor din fisier, nu se verifica din titlul anuntului
+        "ka_url": "s-pc-zubehoer-software/monitore", "ka_cod": "c225",
+        "ka_filtru": "+pc_zubehoer_software.art_s:monitore",
+        "id_999": 10,
+        "costuri_eur": 35, "pret_minim_eur": 50,
+        "filtru_accesorii": True,
+        "cuvinte_excluse": ["ремонт", "reparat", "repair", "defekt", "kaputt", "riss",
+                            "ersatzteile", "piese", "doar suport", "doar picior", "nur fuß",
+                            "nur standfuß", "monitorarm", "halterung", "ständer"],
+    },
 }
 
 # ============================================================
